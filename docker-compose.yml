@@ -64,7 +64,6 @@ services:
 
   influxdb:
     image: influxdb:2
-    container_name: influxdb
     ports:
       - ${INFLUXDB_PORT}:8086
     volumes:
@@ -87,6 +86,7 @@ services:
     restart: unless-stopped
     networks:
       - my_network
+    container_name: influxdb
 
   db:
     image: postgres:14.1-alpine
@@ -109,22 +109,43 @@ services:
     container_name: coreDB
 
   saveservice:
-    image: parsazendehdel/edmidc-save-service:v1.0.1
+    image: parsazendehdel/edmidc-save-service
     ports:
       - "8080:8080"
     networks:
       - my_network
+    restart: unless-stopped
     container_name: saveservice
     depends_on: [influxdb,db,kafka,zookeeper]
+    environment:
+    - INFLUXDB_URL=http://influxdb:${INFLUXDB_PORT}
+    - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    - DOCKER_INFLUXDB_INIT_ORG=${DOCKER_INFLUXDB_INIT_ORG}
+    - DOCKER_INFLUXDB_INIT_BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET}
+    - KAFKA_TOPICS=${KAFKA_TOPICS}
+    - KAFKA_BOOTSTRAP_URL=kafka:29092
+    - GROUP_ID=${GROUP_ID_SAVE_SERVICE}
 
   producerservice-bitcoin:
-    image: parsazendehdel/edmidc-producer-service:v1.0.0
+    image: parsazendehdel/edmidc-producer-service
     ports:
       - "8081:8081"
     networks:
       - my_network
+    restart: unless-stopped
     container_name: producerservice-bitcoin
     depends_on: [influxdb,db,kafka,zookeeper]
+    environment:
+      - KAFKA_BOOTSTRAP_URL=kafka:29092
+      - TOPIC_NAME=${TOPIC_NAME}
+      - ERROR_TOPIC=${ERROR_TOPIC}
+      - RESOURCE_MEASUREMENT_NAME=${RESOURCE_MEASUREMENT_NAME}
+      - RESOURCE_TAG=${RESOURCE_TAG}
+      - RESOURCE_FREQUENCY=${RESOURCE_FREQUENCY}
+      - POSTGRES_URL=jdbc:postgresql://coreDB:${POSTGRES_PORT}/${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PRODUCER_APPLICATION_NAME=${PRODUCER_APPLICATION_NAME}
 
 networks:
   my_network:
