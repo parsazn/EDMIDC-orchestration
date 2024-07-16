@@ -57,6 +57,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting
     networks:
       - my_network
     container_name: grafana

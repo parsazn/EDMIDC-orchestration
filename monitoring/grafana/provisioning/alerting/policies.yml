@@ -1,0 +1,11 @@
+receiver: grafana-default-email
+group_by:
+  - grafana_folder
+  - alertname
+routes:
+  - receiver: EDMIDC
+    object_matchers:
+      - 
+        - EDMIDC
+        - "="
+        - Error
