@@ -117,6 +117,12 @@ services:
       - my_network
     restart: unless-stopped
     container_name: saveservice
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1"
+      interval: 180s
+      timeout: 30s
+      retries: 5
+      start_period: 40s
     depends_on: [influxdb,db,kafka,zookeeper]
     environment:
     - INFLUXDB_URL=http://influxdb:${INFLUXDB_PORT}
@@ -135,6 +141,12 @@ services:
       - my_network
     restart: unless-stopped
     container_name: producerservice-bitcoin
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      interval: 180s
+      timeout: 30s
+      retries: 5
+      start_period: 40s
     depends_on: [influxdb,db,kafka,zookeeper]
     environment:
       - KAFKA_BOOTSTRAP_URL=kafka:29092
