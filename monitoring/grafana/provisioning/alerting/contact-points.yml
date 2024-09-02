@@ -26,5 +26,5 @@ contactPoints:
         settings:
           message: One of the producers is down!
           title : EDMIDC
-          url : The webhook link to your discord
+          url : YOUR_DISCORD_LINK
           use_discord_username : false
